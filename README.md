@@ -13,3 +13,6 @@ Pig
 
 Hive
 
+Mahout
+
+Various Map Reduce Procedures written in Python
