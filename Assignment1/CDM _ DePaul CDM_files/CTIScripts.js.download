@@ -1,0 +1,1462 @@
+var protocol = location.protocol;
+
+
+var anchors = document.getElementsByTagName('a');
+var pageIsInEditMode = false;
+	window.onresize = function () {
+		FixWorkspaceHeight();
+	};
+	
+	
+function toggleDiv(div, img) {
+    var a = document.getElementById(div);
+    if (a.style.display == "none") {
+        a.style.display = "block";
+        document.getElementById(img).src = "/PublishingImages/minus.png";
+    }
+    else {
+        a.style.display = "none";
+        document.getElementById(img).src = "/PublishingImages/plus.png";
+    }
+}
+
+function GetURLParameter(sParam)
+{
+    var sPageURL = window.location.search.substring(1);
+    var sURLVariables = sPageURL.split('&');
+    for (var i = 0; i < sURLVariables.length; i++) 
+    {
+        var sParameterName = sURLVariables[i].split('=');
+        if (sParameterName[0] == sParam) 
+        {
+            return sParameterName[1];
+        }
+    }
+}
+
+
+function IsExternalSite(site)
+{
+		//if (site=="mycti.cti.depaul.edu" || site == "prerelease.cti.depaul.edu" || site == "clinton.cs.depaul.edu" || site == "securestore.cti.depaul.edu" || site == "authenticate.cti.depaul.edu")
+		//	{return true;}
+		return false;
+}
+
+function IsExternalSiteNoIcon(site)
+{
+		if (site == "blogs.cti.depaul.edu")
+			{return true;}
+} 
+
+//clean way of disabling the name.dll activex control
+function ProcessImn() {}
+
+function ExternalLink(event)
+{
+	var targ;
+	if (!e)
+	  {
+	  var e=window.event;
+	  }
+	if (e.target)
+	  {
+	  targ=e.target;
+	  }
+	else if (e.srcElement)
+	  {
+	  targ=e.srcElement;
+	  }
+	if (targ.nodeType==3) // defeat Safari bug
+	  {
+	  targ = targ.parentNode;
+	  }
+	if (IsExternalSite(targ.hostname))
+	{
+		targ.target = '_blank';
+	}
+}
+
+
+/*
+function hideLabCalendars(ele){
+    let v = document.querySelectorAll(' .labReservationListHeader ');
+    v.forEach( function blah(ele){ 
+        var pp = ele.parentElement; pp.display = "none"; } );
+}
+	hideLabCalendars();
+*/
+
+
+window.addEventListener('DOMContentLoaded', (event) => {
+    let v = document.querySelectorAll('.labReservationListHeader');
+	//v.forEach(b=> hideLabCalendars(b));
+
+});
+
+function hideLabCalendars(b) {
+
+ //	var newP = document.createElement("p");
+//	newP.textContent ="new stuff is here.";
+	
+	var pv = b.parentElement;
+	pv.style.display = "none";
+	
+//	var grandpv = pv.closest('.noindex');
+//	grandpv.appendChild(newP);
+   
+}
+
+/* jQuery version 
+$( document ).ready(function() {
+   $(' .labReservationListHeader ').each(function () {
+   
+    $(this).parent().css( "display", "none" );
+    
+    //$(this).closest('.noindex').append( "<p>Test</p>" );
+   });
+});
+*/
+
+
+function CTIHacks()
+{
+	InjectRichardHeaderIntoMainPage();
+	FixSearchBar();
+	//FixWorkspaceHeight();
+	CheckRelatedLinks();
+	CheckSidebar();
+	removeStylesFromANames();
+	ChangeClassName();
+	GetCDMExtendedCourseInfo();
+	ToggleCourseList();
+	ToggleSection();
+	ToggleLSSection();
+	GetLegendInfo();
+	/*Temp Hack
+	$('.requirementTitle').append(' 2009-2010');*/
+	ToggleTechnicalReportsList();
+	/*$('body').supersleight({shim: '/PublishingImages/x.gif'});*/
+	GetLabAvailability();
+	EnableVimeoCeeBox();
+	//$('#slider').nivoSlider();
+	LightUpSplashPage();
+	Shortform();
+	CloneNav();
+	$('#mobileFooter .contact span').click(function () {
+		$('#mobileFooter .contactLinks').slideToggle();
+	});
+	//for program pages that requires a manual simple popup, e.g. MGT 798
+	$('.manualSimplePopup').click(function () {
+		ShowSimplePopup($(this).attr('id').replace('-link', ''));
+	});
+	
+	//AddAccessibilityToMasterSliderButtons();
+	InitCustomMasterSliderControlsBar();
+	AddButtonTagToAccordions();
+	
+}
+
+function startSlider() {
+	
+	let images = $('.kf-slider').children('li');
+	var i = 0;
+	$(images[0]).addClass('slider-animation-in');
+	
+	var doIt = function () {
+		let currentElem = images[i];
+		if (i == images.length - 1) 
+			i = 0;
+		else
+			i++;
+		let nextElem = images[i];
+		$(currentElem).one('animationend', function ()
+		{
+			$(currentElem).removeClass('slider-animation-out');
+			$(currentElem).hide();
+			setTimeout(doIt, 5000);
+		});
+		$(currentElem).removeClass('slider-animation-in');
+		$(currentElem).addClass('slider-animation-out');
+		$(nextElem).show();
+		$(nextElem).addClass('slider-animation-in');
+
+	};
+	setTimeout(doIt, 4500);
+
+/*	setInterval(() =>
+	{
+		let currentElem = images[i];
+		if (i == images.length - 1) 
+			i = 0;
+		else
+			i++;
+		let nextElem = images[i];
+		$(currentElem).one('animationend', () =>
+		{
+			$(currentElem).removeClass('slider-animation-out');
+			$(currentElem).hide();
+		});
+		$(currentElem).removeClass('slider-animation-in');
+		$(currentElem).addClass('slider-animation-out');
+		$(nextElem).show();
+		$(nextElem).addClass('slider-animation-in');
+	}, 5500);*/
+}
+
+function InitCustomMasterSliderControlsBar()
+{
+	var html = '<div class="ms-controls-bar">';
+	html += '<button class="ms-custom-btns ms-pause" title="pause slideshow"><span class="sr-only">pause</span></button>';
+	html += '<button class="ms-custom-btns ms-resume" title="resume slideshow"><span class="sr-only">resume</span></button></div>';
+	
+	//.$('.master-slider').append(html);
+	
+	$('.master-slider .ms-container').before(html);
+	
+	$('.master-slider').each(function () {
+		var $wrapper = $(this);
+		var sliderObj = $wrapper.masterslider('masterslider');
+		var sliderId = $wrapper.attr('id');
+		var $thisControlBar = $wrapper.children('.ms-controls-bar').first();
+		$wrapper.find('.ms-nav-next').appendTo($thisControlBar);
+		$wrapper.find('.ms-nav-prev').appendTo($thisControlBar);
+		$wrapper.find('.ms-bullets').appendTo($thisControlBar);
+		$wrapper.find('.ms-pause').first().click(function (e) {
+			$('#' + sliderId).masterslider('pause');
+			e.preventDefault();
+			$(this).toggle();
+			$(this).next().toggle().focus();
+		});
+		$wrapper.find('.ms-resume').first().click(function (e) {
+			$('#' + sliderId).masterslider('resume');
+			e.preventDefault();
+			$(this).toggle()
+			$(this).prev().toggle().focus();
+		});
+	});
+	
+	  	$('.ms-bullets-count > div').html('<button></button>').attr("role","button");
+  		$('.ms-bullet button').click(function(e){
+  			e.preventDefault();
+  		});
+  		var allSlides = $('.ms-bullet button');
+  		for ( i = 0; i < allSlides.length; i++ ) {
+  			$(allSlides[i]).html('<span class="sr-only">' + 'Slide ' + (i + 1) + '</span>');
+  		}
+
+}
+
+
+function AddButtonTagToAccordions()
+{
+	$('.tabpanel .tab').wrapInner('<button></button>')
+	$('.tab button').click(function(e){
+		e.preventDefault();
+		$(this).toggleClass("faMinusSwap");
+	});
+
+		
+	/*$('[id*=accordian] h2.tab, [id*=accordian] h3.tab, .shift-style--headers h4.accordian').click(function() {
+		$(this).toggleClass("faMinusSwap");
+	});*/
+	
+}
+
+
+ 
+
+
+
+
+
+
+function AddAccessibilityToMasterSliderButtons()
+{
+	$('div.ms-nav-next, div.ms-nav-prev, div.ms-bullet').attr('role', 'button');
+	
+	$('#ms-resume, #ms-pause').click(function(e){
+		e.preventDefault();
+		$('#ms-resume, #ms-pause').toggle().focus();
+	});
+	
+	$( document ).ready(function() {
+  		$(".ms-skin-default .ms-nav-next, .ms-skin-default .ms-nav-prev").appendTo("#ms-controls-bar").attr("role","button");
+  		$(".ms-bullets").appendTo("#ms-controls-bar");
+
+  		$('.ms-bullets-count > div').html('<button></button>').attr("role","button");
+  		$('.ms-bullet button').click(function(e){
+  			e.preventDefault();
+  		});
+  		
+  		for ( i = 0; i < slider.api.count(); i++ ) {
+  			var j = i+1;
+  			$(allSlides[i]).html('<span class="sr-only">' + 'Slide ' + j + '</span>');
+  		}
+  		
+	});	
+}
+
+function InjectRichardHeaderIntoMainPage() {
+	//$('#masterslider').appendTo('#pageHeader');
+	$('.masterslider-home').appendTo('#pageHeader');
+	$('.slider-wrapper').appendTo('#pageHeader');
+}
+
+function EnableVimeoCeeBox()
+{
+	//$(".vimeoVideos .videoItem").ceebox({borderColor:'#ffffff',boxColor:"#000000"});
+	//$(".ProjectBluelight .videoItem").ceebox({borderColor:'#ffffff',boxColor:"#000000"});
+	$(".flickrItem a").cdmPopup();
+	//$(".ceebox").ceebox({margin:300,overlayOpacity:0.3});
+	$('.cdmPopUp').cdmPopup();
+
+}
+
+
+function FixWorkspaceHeight()
+{
+	/*if (isProd != null && isProd !=true)
+		$('#s4-workspaceCDM').height($(window).height() - $('#s4-ribbonrow').height());*/
+}
+function GetLabAvailability()
+{
+	$(".CDMLabStatus").each(
+		function(i)
+		{
+			var labName = $(this).text();
+			if (labName !="NONE")
+			{
+				var url="/_layouts/CDM/LabAvailability.aspx?LabName=" + labName;
+				getLabAvailability(labName, this);			
+			}
+			else
+			{
+				getLabAvailability("NONE", this);
+			}
+			//alert(url);
+		});
+
+}
+
+function getLabAvailability(url,ref)
+{
+	    var parent = $(ref).parent();
+	
+		if(url=="NONE")
+		{
+			$(parent).append("<i class=\"fa fa-circle-o fa-lg labGrey\"></i> Status unavailable");
+		}
+		else
+		{
+		OData.defaultHttpClient.enableJsonpCallback = true;
+		OData.read(odataBaseUrl + "/GetCDMLabUsage?labName='" + url + "'", function (data, request) {
+			var total = data.GetCDMLabUsage.Total;
+			var available = data.GetCDMLabUsage.InUse;
+			var percentage = 0;
+			var percentWhole =0;
+			if (total == 0)
+			{
+				$(parent).append("<i class=\"fa fa-circle-o fa-lg labGrey\"></i> Status unavailable");
+			}
+			else if (available ==0)
+			{
+				$(parent).append("<i class=\"fa fa-circle fa-lg labRed\"></i> No seats available");
+			}
+			else
+			{
+				percentage = available/total;
+				percentWhole = parseInt(percentage*100);
+				let className = '';
+				if(percentage >= .5)
+				{
+					className = 'labGreen';
+				}
+				else if(percentage < .5 && percentage > .25)
+				{
+					className = 'labYellow'
+				}
+				else 
+				{
+					className = 'labRed';
+				}
+				$(parent).append('<i class="fa fa-circle fa-lg ' + className + '"></i> '  + available + '/' + total  + ' seats open');
+
+			}
+		});
+/*					$.get(url, function(data){
+							var child = $(data).children(0);
+							var total = $(child).attr("Total");
+							var available = $(child).attr("Available");
+							var percentage = 0;
+							var percentWhole =0;
+							if (available ==0)
+							{
+								$(parent).append("<i class=\"fa fa-circle fa-lg labRed\"></i> No seats available");
+							}
+							else
+							{
+								percentage = available/total;
+								percentWhole = parseInt(percentage*100);
+								if(percentage >= .5)
+								{
+									$(parent).append("<i class=\"fa fa-circle fa-lg labGreen\"></i> " + available + "/" + total  +" seats open");
+								}
+								else if(percentage < .5 && percentage > .25)
+								{
+									$(parent).append("<i class=\"fa fa-circle fa-lg labYellow\"></i> "  + available + "/" + total  +" seats open");
+								
+								}
+								else 
+								{
+									$(parent).append("<i class=\"fa fa-circle fa-lg labRed\"></i> "  + available + "/" + total  +" seats open");
+								}
+				
+							}
+				 		});*/
+ 		}
+}
+
+function FixSearchBar()
+{
+	var sb = document.getElementById('ctl00_SearchBox_S6F789EBA_InputKeywords');
+	if(sb!=null)
+	{
+					sb.value = 'Search...';
+					sb.onfocus = function () {
+						sb.value = "";
+					};
+	}
+}
+
+function CheckRelatedLinks()
+{
+	var rl = document.getElementById('CTISidebarRelatedLinksContent');
+	if (rl != null)
+	{
+		var tmp = rl.innerHTML;
+		tmp.replace(/<[^>]*>/,'');
+		if (rl.innerHTML == "" || rl.innerHTML == null || rl.innerHTML.length == 2 || tmp.length == 0)
+		{
+			document.getElementById('CTISidebarRelatedLinksContainer').style.display = 'none';
+		}
+	}
+}
+function CheckSidebar()
+{
+	var tmp = $("#CTISidebarContent").text();
+	tmp.replace(/<[^>]*>/,'');
+	//tmp.replace(/\s+/,'');
+	var tmp2 = $("#CTISidebarTitle").text();
+	tmp2.replace(/<[^>]*>/,'');
+	//tmp2.replace(/\s+/,'');
+	if ($("#CTISidebarTitle").text().length <= 3 || $("#SidebarContent").text().length <= 3 || tmp.length < 1 || tmp2.length < 1)
+	{
+		$("#CTISidebarTitle").hide();
+		$("#SidebarContent").hide();
+	}
+}
+function DetectEditMode()
+{
+}
+
+function getMaxDivHeight()
+{
+
+	try
+	{
+		var rightHeight = document.getElementById('ctl00_PageRightColumContainer').offsetHeight;
+		var mainHeight = document.getElementById('ctl00_PageBody').offsetHeight;
+		if (rightHeight > mainHeight)
+		{
+			var diff = rightHeight-mainHeight + 120;
+			document.getElementById('ctl00_PageFooter').style.paddingTop = diff + 'px';
+			
+		}
+		else if ((mainHeight > rightHeight) && (pageIsInEditMode == false) && (mainHeight < 1200))
+		{
+			document.getElementById('ctl00_PageRightColumn').style.height = mainHeight - 10 + 'px';
+		}
+	}
+	catch (err) {}
+}
+			
+function removeStylesFromANames()
+{
+	var anchors = document.getElementsByTagName('a');
+	var tmp = '';
+	for (var i = 0; i < anchors.length; i++)
+	{
+		if (anchors[i].href == '')
+		{
+			anchors[i].style.color = 'black';
+			anchors[i].style.textDecoration = 'none';
+		}
+	}
+}
+
+function ChangeClassName()
+{
+	for (i = 0; i < anchors.length; i++)
+	{
+		if(anchors[i].href != 'https://mycti.cti.depaul.edu/cti/advising/login.asp')
+		{
+			if (IsExternalSite(anchors[i].hostname))
+			{
+				anchors[i].className = 'external';
+				anchors[i].target = '_blank';
+			}
+			if (IsExternalSiteNoIcon(anchors[i].hostname))
+			{
+				anchors[i].target= '_blank';
+			}
+		}
+	}
+}
+
+/*
+function GetCDMExtendedCourseInfo()
+{
+	$(".CDMExtendedCourseInfo").each(
+		function(i)
+		{
+			$(this).replaceWith(test(this));
+		});
+}
+
+function test(i)
+{
+	var retval = this;
+
+	$.get("/legacy/GetCDMCourseInfoProxy.aspx", function(data){
+ 		 return data;
+		});
+
+	//alert($(i).html());
+	//return data;	
+}
+*/
+function toggleDivNoImageHook() {
+$(".CDMProgramLinks").parent().children('div').hide();
+$(".CDMProgramLinks").prepend('<img src = "/PublishingImages/plus.png" border="0" /> ');
+$(".CDMProgramLinks").each(
+		function(i)
+		{
+ 		 	$(this).click(function(event){
+ 		 	event.preventDefault();
+ 		 	//toggleDivNoImage($(this).text());
+ 		 	$(this).next('div').toggle();
+
+ 			 	}
+ 			);
+			}
+		);
+}
+function togglePlusMinus(icon)
+{
+	if (icon.src)
+	{
+		if (icon.src == "/PublishingImages/plus.png")
+			return '<img src = "/PublishingImages/minus.png" /> ';
+		else
+			return '<img src = "/PublishingImages/plus.png" /> ';
+	}
+	else
+		return '<img src = "/PublishingImages/plus.png" /> ';
+}
+function toggleDivNoImage(div)
+{
+    var a = document.getElementById(div);
+    if (a.style.display == "none") {
+        a.style.display = "block";
+    }
+    else {
+        a.style.display = "none";
+    }
+
+}
+
+function GetCDMExtendedCourseInfo()
+{
+	var courseArray = {};
+	var uriArray = new Array();
+	OData.defaultHttpClient.enableJsonpCallback = true;
+	var serviceUri = odataBaseUrl + "/";
+	var courseInfoUri = serviceUri + "Courses?$select=CourseTitleLong,SubjectId,CatalogNbr,IsInClassOnly,IsInClassAndOnline,IsOnlineOnly,IsNotOffered&$orderby=EffStatus asc,Effdt desc&$filter=";
+	var count = 0;
+	var courseInfoUriQuery = '';
+	var seenCourseArray = new Array();
+	$(".CDMExtendedCourseInfo").each(
+		function(i)
+		{
+			var val = $(this).text();
+			val = val.replace(/[^\x00-\x7F]/g, "");
+			var vals = val.split(' ');
+			var subjectId = vals[0];
+			subjectId = subjectId.toUpperCase().trim();
+			var catalogNbr = vals[1];
+			catalogNbr = catalogNbr.trim();
+			$(this).addClass(subjectId + catalogNbr);
+			if (courseArray[subjectId + ' ' + catalogNbr] != 1)
+			{
+				if (count % 24 != 0 || count == 0)
+				{
+					if (courseInfoUriQuery != '')
+						courseInfoUriQuery += ' or ';
+					courseInfoUriQuery += "(SubjectId eq '" + subjectId + "' and CatalogNbr eq '" + catalogNbr + "')";
+				}
+				else
+				{
+					if (courseInfoUriQuery != '')
+						courseInfoUriQuery += ' or ';
+					courseInfoUriQuery += "(SubjectId eq '" + subjectId + "' and CatalogNbr eq '" + catalogNbr + "')";
+					uriArray.push(courseInfoUriQuery);
+					courseInfoUriQuery = '';
+				}
+				count++;
+			}
+			courseArray[subjectId + ' ' + catalogNbr] = 1;
+		});
+		if (courseInfoUriQuery != '')
+			uriArray.push(courseInfoUriQuery);
+		for (var q in uriArray)
+		{
+			OData.read(courseInfoUri + uriArray[q], function (data, request) {
+						for (var r = 0; r < data.results.length; r++)
+						{
+							var currentSubjectId = data.results[r].SubjectId;
+							var currentCatalogNbr = data.results[r].CatalogNbr;
+							var ref = $('.' + currentSubjectId + currentCatalogNbr);
+							if (ref.children().length < 2)
+							{
+							seenCourseArray.push(currentSubjectId + currentCatalogNbr);
+
+
+
+							var imgUrl = '';
+							if (data.results[r].IsInClassOnly)
+								imgUrl = 'fa-circle-o fa-blue';
+							else if (data.results[r].IsInClassAndOnline)
+								imgUrl = 'fa-circle fa-blue';
+							else if (data.results[r].IsOnlineOnly)
+								imgUrl = 'fa-dot-circle-o fa-blue';
+							else if (data.results[r].IsNotOffered)
+								imgUrl = 'fa-circle-o fa-grey';	
+							else
+								imgUrl = '/academics/PublishingImages/COLiconSpacer.gif';
+							$(ref).empty();
+							//var link = '<img src="' + imgUrl + '" /> <a href="#">' + currentSubjectId  + ' ' + currentCatalogNbr + '</a> ' + data.results[r].CourseTitleLong;
+							var link = '<i class="fa ' + imgUrl + '"></i>' + ' <a href="#">' + currentSubjectId  + ' ' + currentCatalogNbr + '</a> ' + data.results[r].CourseTitleLong;
+
+
+
+							$(ref).append(link);
+							var elem = $('.' + currentSubjectId + currentCatalogNbr + ' a')[0];
+							$('.' + currentSubjectId + currentCatalogNbr + ' a').click(function () {
+
+								var $this = $(this);
+								var thisSubjectId = $(this).text().split(' ')[0];
+								var thisCatalogNbr = $(this).text().split(' ')[1];
+								var courseInfoDetailUri = serviceUri + "Courses?$orderby=Effdt desc&$filter=SubjectId eq '" + thisSubjectId + "' and CatalogNbr eq '" + thisCatalogNbr + "' and EffStatus eq 'A'";
+								var scheduleUri = serviceUri + "ClassMeetings?$filter=SubjectId eq '" + thisSubjectId + "' and CatalogNbr eq '" + thisCatalogNbr + "'";
+								if (typeof(termOverride) != "undefined")
+									scheduleUri += " and TermId eq '" + termOverride + "'";
+								else
+									scheduleUri += ' and StrmRank eq 0';
+								OData.read(courseInfoDetailUri, function (data, request) {
+									OData.read(scheduleUri, function (scheduleData, scheduleRequest) {
+										var scheduleBlurb;
+										scheduleBlurb = '<p>' + data.results[0].DescrLong + '</p>';
+										if (data.results[0].REQGROUPDescription && data.results[0].REQGROUPDescription.length > 1) {
+											scheduleBlurb += '<p>Prerequisite(s): ' + data.results[0].REQGROUPDescription + '</p>';											
+										}
+										if (!scheduleData || scheduleData.results.length < 1)
+										{
+											scheduleBlurb += '<p><b>This class is not being offered this quarter.</b></p>';
+										}
+										else
+										{
+											scheduleBlurb +=  '<p><b>Schedule for ' + scheduleData.results[0].QuarterLongName + '</b></p>';
+											for (var i = 0; i < scheduleData.results.length; i++)
+											{
+												scheduleBlurb += '<p>Section: <b>' + scheduleData.results[i].ClassSection + '</b> ID: <b>' + scheduleData.results[i].ClassNbr + '</b> Day: <b>' + scheduleData.results[i].ClassDays + '</b> Time: <b>' + scheduleData.results[i].ClassStartTime + ' - ' + scheduleData.results[i].ClassEndTime + '</b>';
+												var facultyInfo;
+												if (scheduleData.results[i].OriginalFacultyId != 0)
+													facultyInfo = '<a href="/about/pages/people/facultyinfo.aspx?fid=' + scheduleData.results[i].OriginalFacultyId + '">' + scheduleData.results[i].FacultyName + '</a>';
+												else
+													facultyInfo = scheduleData.results[i].FacultyName;
+												scheduleBlurb += '<div>Instructor: ' + facultyInfo + ' Room: ' + scheduleData.results[i].Room;
+												if (scheduleData.results[i].OriginalFacultyId != 0)
+													scheduleBlurb += ' <a href="/academics/pages/classinfo.aspx?Term=' + scheduleData.results[i].TermId + '&ClassNbr=' + scheduleData.results[i].ClassNbr + '&fid=' + scheduleData.results[i].FacultyId + '">Syllabus</a>';
+												scheduleBlurb += '</p>';
+											}
+										}
+										//$(".simple_popup_div.odata").remove();
+							            //var strSimple = "<div class='simple_popup_div odata'><div class='simple_popup_inner'>"
+							            //strSimple += '<p id="simp_close_x" align="right" class="simple_close"><a href="#">X</a></p><b><a href="/academics/pages/courseinfo.aspx?Subject=' + data.results[0].SubjectId + '&CatalogNbr=' + data.results[0].CatalogNbr + '">' + data.results[0].SubjectId + ' ' + data.results[0].CatalogNbr + '</a> ' + data.results[0].CourseTitleLong + '</b>';
+							            //strSimple += '<p>' + data.results[0].DescrLong + scheduleBlurb + '</p>'
+							            //strSimple += "<p align='center' class='simple_close'><a href='#'>CLOSE</a></p></div></div>";
+							            //var $popup = $(strSimple);
+							           // $("body").append($popup);
+							            //viewport.init(".simple_popup_div");
+							            //$(".simple_close").click(function(){
+							                //$popup.remove();
+							                //return false;
+			            				//});
+
+										var header = '<a href="/academics/pages/courseinfo.aspx?Subject=' + data.results[0].SubjectId + '&CatalogNbr=' + data.results[0].CatalogNbr + '">' + data.results[0].SubjectId + ' ' + data.results[0].CatalogNbr + '</a> ' + data.results[0].CourseTitleLong;
+										$.fn.cdmPopup.show(header, scheduleBlurb, $this);
+
+
+			            				
+									});
+								});
+								return false;
+							});
+						}
+						}
+					});
+		}
+		$('.collapsedCourseList').each(function () {
+			var $showHide = $('<div style="cursor: pointer" class="showHide">Show/hide all</div>');
+			var $this = $(this);
+			$showHide.click(function () {
+				$this.children('li').each (function () {
+					DoToggleCourseList($(this));
+				});
+			});
+			$this.prepend($showHide);
+		});
+}
+
+
+/*
+	Code Sample Taken from 
+        3.) Simply Centered Informational DIV Popup
+    */
+
+    /*
+        The viewport object is mainly for the cross-browser mess
+        that is unfortunately necessary to get a DIV to center.
+
+        There is also an officially supported plugin called "Dimensions"
+        that can manage some of this on your own projects. Check it out at:
+
+        http://jquery.com/plugins/project/dimensions
+    */
+
+    var viewport = {
+        o: function() {
+            if (self.innerHeight) {
+    			this.pageYOffset = self.pageYOffset;
+    			this.pageXOffset = self.pageXOffset;
+    			this.innerHeight = self.innerHeight;
+    			this.innerWidth = self.innerWidth;
+    		} else if (document.documentElement && document.documentElement.clientHeight) {
+    			this.pageYOffset = document.documentElement.scrollTop;
+    			this.pageXOffset = document.documentElement.scrollLeft;
+    			this.innerHeight = document.documentElement.clientHeight;
+    			this.innerWidth = document.documentElement.clientWidth;
+    		} else if (document.body) {
+    			this.pageYOffset = document.body.scrollTop;
+    			this.pageXOffset = document.body.scrollLeft;
+    			this.innerHeight = document.body.clientHeight;
+    			this.innerWidth = document.body.clientWidth;
+    		}
+    		return this;
+        },
+        init: function(el) {
+            $(el).css("left",Math.round(viewport.o().innerWidth/2) + viewport.o().pageXOffset - Math.round($(el).width()/2));
+            $(el).css("top",Math.round(viewport.o().innerHeight/2) + viewport.o().pageYOffset - Math.round($(el).height()/2));
+        }
+    };
+ 
+function ShowSimplePopup(elemId)
+{
+	$(".simple_popup_div.odata").remove();
+	$('#' + elemId).appendTo('body')
+	viewport.init("#" + elemId);
+	$("#" + elemId).show();
+    $(".simple_close").click(function(){
+         $("#" + elemId).hide();
+         return false;
+	});
+}
+function GetLegendInfo()
+{
+	$(".CourseLegend").each(
+		function(i)
+		{
+			getCurrentTermForLegend(this);			
+		});
+}
+
+function getCurrentTermForLegend(ref)
+{
+	var url = odataBaseUrl;
+	OData.defaultHttpClient.enableJsonpCallback = true;
+	if (typeof(termOverride) != "undefined")
+		url += "/Quarters?$filter=TermId eq '" + termOverride + "'";
+	else
+		url += '/Quarters?$filter=StrmRank eq 0 and StrmSubRank eq 0';
+	OData.read(url, function (data, request) {
+		var kids = $(ref).children();
+ 		 	$(kids[0]).append("Displaying " + data.results[0].QuarterLongName + " Course Availability" );
+	});
+}
+
+
+function ToggleCourseList()
+{
+	$(".collapsedCourseList").children("li").each(
+		function(i)
+		{
+			var a = $(this).children();
+			for (var z = 0; z<a.length; z++)
+			{
+				$(a[z]).hide();
+			}
+			$(this).click(function()
+			{
+				DoToggleCourseList($(this));
+			});
+		});
+}
+function DoToggleCourseList($el)
+{
+	var b = $el.children();
+	if ($(b[0]).css("display") == "none")
+		$el.css({"list-style-image" : "url('/PublishingImages/minus.png')"});
+	else
+		$el.css({"list-style-image" : "url('/PublishingImages/plus.png')"});
+	for (var z = 0; z<b.length; z++)
+	{
+		$(b[z]).toggle();
+	}
+	return false;
+}
+function ToggleSection()
+{
+	$(".collapsedSection > li").each(
+		function(i)
+		{
+			var a = $(this).children();
+			for (var z = 0; z<a.length; z++)
+			{
+				$(a[z]).hide();
+			}
+			$(this).click(function()
+			{
+				
+				var b = $(this).children();
+				if ($(b[0]).css("display") == "none")
+					$(this).css({"list-style-image" : "url('/PublishingImages/minus.png')"});
+				else
+					$(this).css({"list-style-image" : "url('/PublishingImages/plus.png')"});
+				for (var z = 0; z<b.length; z++)
+				{
+					$(b[z]).toggle();
+				}
+				return false;
+			});
+		});
+}
+
+function ToggleLSSection()
+{
+	$(".collapsedLSGroup").each(
+		function(i)
+		{
+			var a = $(this).children();
+			for (var z = 0; z<a.length; z++)
+			{
+				$(a[z]).hide();
+			}
+			$(this).click(function()
+			{
+				var b = $(this).children();
+				if ($(b[0]).css("display") == "none")
+					$(this).addClass("fa fa-angle-double-up").removeClass("fa-angle-double-down");					
+				else
+					$(this).addClass("fa fa-angle-double-down").removeClass("fa-angle-double-up");
+				for (var z = 0; z<b.length; z++)
+				{
+					$(b[z]).toggle();
+				}
+				return false;
+			});
+		});
+}
+//used for /SoC/research/Pages/TechnicalReports.aspx
+function ToggleTechnicalReportsList()
+{
+	$(".collapsedTechReportList").children('li').each(
+		function(i)
+		{
+			var a = $(this).children('table');
+			for (var z = 0; z<a.length; z++)
+			{
+				$(a[z]).hide();
+			}
+			$(this).children('span').each(
+			function()
+			{
+				$(this).click(function()
+				{
+				var b = $(this).siblings('table');
+				if ($(b[0]).css("display") == "none")
+					$(this).css({"background-image" : "url('/PublishingImages/minus.png')"});
+				else
+					$(this).css({"background-image" : "url('/PublishingImages/plus.png')"});
+				for (var z = 0; z<b.length; z++)
+				{
+					$(b[z]).slideToggle();
+				}
+
+				});
+			});
+			$(this).click(function()
+			{
+			});
+
+		});
+}
+function GetOdataFeed(serviceUrl, callback)
+{
+	$.ajax({
+            type: "GET",
+            contentType: "application/json; charset=utf-8",
+            url: serviceUrl,
+            dataType: "json",
+            success: callback
+        })
+}
+function CheckSidebar()
+{
+	var tmp = $("#CTISidebarContent").text();
+	tmp.replace(/<[^>]*>/,'');
+	//tmp.replace(/\s+/,'');
+	var tmp2 = $("#CTISidebarTitle").text();
+	tmp2.replace(/<[^>]*>/,'');
+	//tmp2.replace(/\s+/,'');
+	if ($("#CTISidebarTitle").text().length <= 3 || $("#SidebarContent").text().length <= 3 || tmp.length < 1 || tmp2.length < 1)
+	{
+		$("#CTISidebarTitle").hide();
+		$("#SidebarContent").hide();
+	}
+}
+
+
+function SlideMobileMenu() {
+	$('#mobile-smartNavWrapper').toggleClass('open');
+	$('body').toggleClass('menuOpen');
+	if( $('#mobile-smartNavWrapper').is('.open')) {
+			if ($('#mobile-smart-nav .ctiMenuActiveSiteNode').length > 0) 
+			{ 
+				$('#mobile-smart-nav .ctiMenuActiveSiteNode').focus();
+			}
+			else {
+				$('#accessibletabsnavigation0-0 a').focus();
+			}
+	}
+	else {
+		$('#mobileNavGlyph').focus();	
+	}
+}
+
+function CloseMobileMenu() {
+	$('body').removeClass('menuOpen');
+    $('#mobile-smartNavWrapper').removeClass('open');
+}
+
+function CloneNav()
+{
+ 		$('#smart-nav .smart-nav').smartmenus({
+    		 	'subMenusMaxWidth': null,
+    		 	//'subMenusMinWidth': null,
+    		 	//'keepHighlighted':	false,
+    		 	'noMouseOver': false
+    		 });
+			$('#ctl00_ctiMobileNav').smartmenus({
+    		 	'subMenusMaxWidth': null,
+    		 	'subMenusMinWidth': null,
+    		 	markCurrentItem: true,
+				markCurrentTree: true,
+    		 	//'keepHighlighted':	false,
+    		 	'noMouseOver': true
+    		 });
+
+	   		 $('#ctl00_ctiMobileNav').smartmenus('itemActivate', $('#ctl00_ctiMobileNav').find("a.current").eq(-1));
+    		 
+
+			$('.tabs').accessibleTabs({
+		        // Classname to apply to the div that is wrapped around 
+		        // the original Markup
+		        wrapperClass: 'content', 
+		        // Classname to apply to the LI of the selected Tab
+		        currentClass: 'current', 
+		        // Tag or valid Query Selector of the Elements to Transform the 
+		        // Tabs-Navigation from (originals are removed)
+		        tabhead: 'h2', 
+		        // Tag or valid Query Selector of the Elements to be treated as 
+		        // the Tab Body
+		        tabbody: '.mobileMenuTabBody', 
+		        // can be 'fadeIn', 'slideDown', 'show'
+		        fx:'fadeIn', 
+		        // speed (String|Number): 'slow', 'normal', or 'fast') or the number of 
+		        // milliseconds to run the animation
+		        fxspeed: 'normal',
+		        // text to indicate for screenreaders which tab is the current one 
+		        currentInfoText: '', 
+		        // Definition where to insert the Info Text.
+		        // Can be either 'prepend' or 'append'
+		        currentInfoPosition: 'prepend', 
+		        // Class to apply to the span wrapping the CurrentInfoText
+		        currentInfoClass: 'current-info' 
+		    });
+		$(document).keyup(function(e) {
+	     if (e.keyCode == 27) { // escape key maps to keycode `27`
+	        CloseMobileMenu();
+	    }
+	});
+	
+	$('#mobileNavGlyph').click(function () {
+			SlideMobileMenu();
+	});
+	$(document).on('click', '.smartNavClose', function () {
+		SlideMobileMenu();		
+	});
+	var $clonedSchoolAddress = $('#schoolAddress').clone();
+	$clonedSchoolAddress.removeClass('grid_4');
+	$clonedSchoolAddress.attr('id', 'mobileSchoolAddress');
+	$('#mobileSchoolAddressContainer').html($clonedSchoolAddress);
+	
+	var $courseLinks = $('#courseLinks').clone();
+	var $ctiAdmissionsLinks = $('.CTIAdmissionsLinks').clone();
+	$ctiAdmissionsLinks.attr('id', '');
+	
+	var $schoolLinksContainer = $('<li></li>');
+	var $clonedSchoolLinks = $('#schoolLinks').clone();
+	$clonedSchoolLinks.attr('id', 'mobileSchoolLinks');
+	$schoolLinksContainer.append($clonedSchoolLinks);
+	$('ul#mobileNav > li:last-child').after($schoolLinksContainer);
+	
+	var $utilityContainer = $('<li><div id="mobileUtilityNav"></div></li>');
+	$('ul#mobileNav > li:last-child').after($utilityContainer);
+	$('#mobileUtilityNav').append($ctiAdmissionsLinks);
+	$('#mobileUtilityNav').append($courseLinks);
+	//$courseLinks.insertAfter('ul#mobileNav > li:last-child');
+	//$('li.mobileLinksColumn #courseLinks span').not('.cdmCourseLink').appendTo('li.mobileLinksColumn > div.CTIAdmissionsLinks');
+	//$ctiAdmissionsLinks.insertAfter($courseLinks);
+	//$courseLinks.wrap('<li class="mobileLinksColumn" />');
+	//$ctiAdmissionsLinks.wrap('<li class="mobileLinksColumn" />');
+	$('#mobileUtilityNav #courseLinks span').not('.cdmCourseLink').appendTo('#mobileUtilityNav .CTIAdmissionsLinks');
+
+	$('#mobileNav .ctiMenuSiteNode, #mobileNav .ctiMenuActiveSiteNode').click(function(e) {
+		if ($(this).siblings('ul').children('li').length > 0) {
+			/*e.preventDefault();
+			$('#mobileNav > li > ul').slideUp();
+			$(this).siblings('ul').slideDown();
+			return false;*/
+		}
+	});
+}
+
+
+//used for Ambassadors
+
+function getID(caller){return caller.id;}
+/*            $(document).on('click', '.ambassadorPopUp', function(){
+            	var id = '';
+            	id = $(this).attr('id');
+            	if (id == null)
+            		id = $(this).children().first().attr('id');
+                popUpId = id + "_popup";
+                $('#' + popUpId).bPopup({modal:true, modalColor:'#333', opacity:.3, appendTo:'form', onOpen: function () {
+	                $('#' + popUpId + ' a.ugClose').click(function() {
+						 $('#' + popUpId).bPopup().close();
+					});
+                }
+                });
+				return false;
+			});			
+*/			
+function LightUpSplashPage()
+{
+
+OData.defaultHttpClient.enableJsonpCallback = true;
+	var isUG = false;
+	if ($('#splashNav').length || $('.js_inj-nav2a').length || $('.js_inj-nav2b').length) {
+		var url = '';
+		var url2a = '';
+		var url2b = '';
+		if ($('h4.academicYear').text().toLowerCase().indexOf('bachelor') >= 0 || $('.inj_Nav-splash-undergrad').length > 0 )  {
+			isUG = true;
+			url = '/academics/Documents/splashNav_UG.html'; 
+		} else
+			url = '/academics/Documents/splashNav_Grd.html';
+		
+		if ($('.js_inj-nav2a').length > 0 ) {
+			url2a = '/Documents/inj_list-online-programs-undergraduate.html';
+		}
+		if ($('.js_inj-nav2b').length > 0 ) {
+			url2b = '/Documents/inj_list-online-programs-graduate.html';
+		} 
+		$.get(url, function(data) {
+			$('#splashNav').html(data);
+		});
+		$.get(url2a, function(data) {
+			$('.js_inj-nav2a').html(data);
+		});
+		$.get(url2b, function(data) {
+			$('.js_inj-nav2b').html(data);
+		});
+
+	} 		
+			
+	
+	
+	if ($('li#last').length) {
+		if ($('li#last').children().first().attr('href') == '#') {
+			$('li#last').first().addClass('concentrations');
+		}
+	}
+	
+	if ($('.ambassadorContainer').length > 0) {
+		var id = $('.ambassadorContainer').first().attr('id');
+		OData.read(odataBaseUrl + "/CDMAmbassadorMajorMaps?$filter=MajorID eq '" + id + "'", function (data, request) {
+			if (data.results.length)
+			{
+				var rand = Math.floor(Math.random() * data.results.length);
+				var ambassadorId = data.results[rand].AmbassadorID;
+				var majorTitle = '';
+				OData.read(odataBaseUrl + "/CDMMajors?$filter=AcadPlan eq '" + id + "'", function (majorData, majorRequest) {
+					majorTitle = majorData.results[0].Major;
+					OData.read(odataBaseUrl + "/CDMAmbassadors?$select=FirstName,LastName,MediumPicture&$filter=AmbassadorId eq " + ambassadorId, function (ambassadorData, ambassadorRequest) {
+						var ambassadorHtml = '<div class="card board"><a href="/Admission-and-Aid/Pages/ambassadorinfo.aspx?ambassadorId=' + ambassadorId + '"><img alt="" src="data:image/jpeg;base64,' + ambassadorData.results[0].MediumPicture + '">';
+						ambassadorHtml += '<div class="ugName">' + ambassadorData.results[0].FirstName + ' ' + ambassadorData.results[0].LastName + '</div></a>';
+						ambassadorHtml += '<div class="ugProgram">' + majorTitle + '</div>';
+						ambassadorHtml += '<div class="contactAmbassador"><a href="/Admission-and-Aid/Pages/ambassadorinfo.aspx?ambassadorId=' + ambassadorId + '"><i class="fa fa-envelope"></i></a></div></div>';
+						$('.ambassadorContainer').html(ambassadorHtml);
+					});
+				});
+			}
+			else
+			{
+			let AmbassadorModuleTitle = document.querySelector('#ambassadorModuleTitle');
+			let AmbassadorTitleLink = document.createElement('a');
+			AmbassadorTitleLink.setAttribute('href', '/Admission-and-Aid/Pages/ambassadorinfo.aspx');
+			AmbassadorModuleTitle.classList.add('angleRight');
+			AmbassadorModuleTitle.parentNode.insertBefore(AmbassadorTitleLink, AmbassadorModuleTitle);
+			AmbassadorTitleLink.appendChild(AmbassadorModuleTitle);
+			let AmbassadorDefaultImage = document.querySelector('.ambassadorContainer');
+ 			AmbassadorTitleLink.appendChild(AmbassadorDefaultImage);
+
+
+			
+			var ambassadorHtml = '<div class="card board">';
+						ambassadorHtml += '<div class="ugName"><img src="/PublishingImages/Ask-an-Ambassador-04.jpg" alt="head shots of a few student ambassadors" class="ambassador--none-img" /></a></div>';
+						ambassadorHtml += '</div>';
+						$('.ambassadorContainer').html(ambassadorHtml);
+			}
+		});
+	}
+	
+
+
+
+//ff is not recognizing the button tag? works in chrome.
+	$('.toggle-concentrations-header .fa-angle-right').click(function() {
+		var thisItemsAreThirds = $(this).closest('.toggle-concentrations-header').first('.col-thirds').css('width');
+		var thisItemsAreHalves = $(this).closest('.toggle-concentrations-header').first('.col-halves').css('width');
+		$this = $(this).closest('.toggle-concentrations-header').next('.toggle-concentrations');
+		//var toggleWidth = $('.toggle-concentrations .col-thirds, .toggle-concentrations .col-halves').first().css('width') ;
+		//var toggleCounterLength = $('.toggle-concentrations-item-wrap').children('.col-thirds, .col-halves').length;
+		
+		//alert(thisItemsAreThirds);
+		if ('thisItemsAreHavles'){
+			$this.scrollTo('+=' + thisItemsAreHalves, 400, {
+				axis: 'x'
+			});
+			
+		} else {
+			$this.scrollTo('+=' + thisItemsAreThirds, 400, {
+				axis: 'x'
+			});
+
+		}
+		
+		return false;
+	});
+	$('.toggle-concentrations-header .fa-angle-left').click(function() {
+		$this = $(this).closest('.toggle-concentrations-header').next('.toggle-concentrations');
+		var toggleWidth = $('.toggle-concentrations .col-thirds, .toggle-concentrations .col-halves').first().css('width') ;
+		//alert(toggleWidth);
+		$this.scrollTo('-=' + toggleWidth, 400, {
+			axis: 'x'
+		});
+		return false;
+	}); 	        	
+
+	//$('.toggle-concentrations-header *').onclick(clickyClick);
+
+
+
+	
+
+	 $('.features-slider--controls .fa-angle-right').click(function() {
+		var toggleWidth = $('.features-slider--items .slide').first().css('width') ;
+		var toggleCounterLength = $('.features-slider--items-wrap').children('.slide').length;
+
+		$('.features-slider--items').scrollTo('+=' + toggleWidth, 400, {
+			axis: 'x'
+		});
+		return false;
+	});
+	$('.features-slider--controls .fa-angle-left').click(function() {
+		var toggleWidth = $('.features-slider--items .slide').first().css('width') ;
+		$('.features-slider--items').scrollTo('-=' + toggleWidth, 400, {
+			axis: 'x'
+		});
+		return false;
+	});
+
+
+        	
+	$('.splashpage-facultyName').click(function () {
+		var id = $(this).attr('id');
+		$('.splashpage-facultyName').removeClass('selected');
+		$('#selectedFacultyImage img').hide();
+		$('#' + id + '-img').fadeIn();
+		$(this).addClass('selected');
+	});
+	$('.splashpage-facultyName').first().trigger('click');
+	
+
+	var navUrl = '/academics/Documents/';
+	var getNav = false;
+	if ($('#inj-UndergradProgramsMenu').length) {
+			isUG = true;
+			getNav = true;
+			navUrl +='reqNav_UG.html'; 
+		}
+	else if ($('#inj-GradProgramsMenu').length) {
+		getNav = true;
+		navUrl +='reqNav_Grd.html'; 
+	}
+	if (getNav) {
+		$.get(navUrl, function(data) {
+			if (isUG)
+				$('#inj-UndergradProgramsMenu').html(data);	
+			else
+				$('#inj-GradProgramsMenu').html(data);	
+		});
+	}
+	if ($('#splashVAS').length) {
+		$.get('/academics/Documents/splash_VAS.html', function(data) {
+			$('#splashVAS').html(data);
+		});
+	}
+	if ($('#splashBluelight').length) {
+		$.get('/academics/Documents/splash_Bluelight.html', function(data) {
+			$('#splashBluelight').html(data);
+			EnableVimeoCeeBox();
+		});
+	}
+	if ($('#splashLAQuarter').length) {
+		$.get('/academics/Documents/splash_LAQuarter.html', function(data) {
+			$('#splashLAQuarter').html(data);
+		});
+	}
+	if ($('#splashAdmission').length) {
+		$.get('/academics/Documents/splash_Admission.html', function(data) {
+			$('#splashAdmission').html(data);
+		});
+	}
+	if ($('#splashPlaybackOnline').length) {
+		$.get('/academics/Documents/splash_PlaybackOnline.html', function(data) {
+			$('#splashPlaybackOnline').html(data);
+		});
+	}	
+	if ($('#splashCinespace').length) {
+		$.get('/academics/Documents/splash_cinespace.html', function(data) {
+			$('#splashCinespace').html(data);
+		});
+	}
+	if ($('#splashVASCinema').length) {
+		$.get('/academics/Documents/splash_VAS_Wachowski.html', function(data) {
+			$('#splashVASCinema').html(data);
+		});
+	}
+	if ($('#splashVASSW').length) {
+		$.get('/academics/Documents/splash_VAS_Alibar.html', function(data) {
+			$('#splashVASSW').html(data);
+		});
+	}
+
+	if ($('#splashVASAnimation').length) {
+		$.get('/academics/Documents/splash_VAS_Campbell.html', function(data) {
+			$('#splashVASAnimation').html(data);
+		});
+	}
+	if ($('#splashProductionResources').length) {
+		$.get('/academics/Documents/splash_Production_Resources.html', function(data) {
+			$('#splashProductionResources').html(data);
+		});
+	}
+	if ($('#splashOnlineLearning').length) {
+		$.get('/onlinelearning/Documents/includes-OnlineLearning.html', function(data) {
+			$('#splashOnlineLearning').html(data);
+		});
+	}
+	if ($('#inj-OnlineLearning').length) {
+		$.get('/onlinelearning/Documents/includes-OnlineLearning.html', function(data) {
+			$('#inj-OnlineLearning').html(data);
+		});
+	}
+	if ($('#inj-UsefulLinks').length) {
+        $.get('/academics/Documents/splash_UsefulLinks.html', function(data) {
+            $('#inj-UsefulLinks').html(data);
+        });
+    }
+	if ($('#inj-ProductionResources').length) {
+		$.get('/Student-Resources/Documents/includes-production-resource-additional-info.html', function(data) {
+			$('#inj-ProductionResources').html(data);
+		});
+	}
+	if ($('#inj-Research-01').length) {
+		$.get('/academics/Documents/includes-research-01.html', function(data) {
+			$('#inj-Research-01').html(data);
+		});
+	}
+	if ($('.inj-gradAdminReqSendMaterialsTo').length) {
+		$.get('/Documents/inj_gradAdmininstrationReqSendTo.html', function(data) {
+			$('.inj-gradAdminReqSendMaterialsTo').html(data);
+		});
+	}
+	if ($('#inj-labHrs').length) {
+		$.get('/Documents/inj_labHrs.html', function(data) {
+			$('#inj-labHrs').html(data);
+		});
+	}
+
+
+/*	$(document).on('click', '.has-sublinks', function() {
+    	 $(this).find('.popoutmenu').slideToggle().toggleClass('opened'); 
+	});
+*/	
+
+
+	$(document).on('click', '.has-sublinks', function() {
+    	 $(this).find('.popoutmenu').slideToggle();
+		 $(this).toggleClass('opened');
+
+	});
+
+	
+	$(document).on('click', 'button.menuTitle', function(e) {
+		e.preventDefault();
+		var $button = $(this);
+		$button.next('ul.sub-nav').toggle('fast', function(){
+			$button.toggleClass('opened');
+		});
+	}); 
+
+
+	$(document).on('click', 'button.curricAndReq', function(el) {
+		el.preventDefault();
+		var $button = $(this);
+		$button.next('ul.sub-nav').toggle('fast', function(){
+			$button.toggleClass('opened');
+		});
+	}); 
+
+	$(document).ready(function () {
+		$('.cdmPopUpLab').click(function (e) {
+			e.preventDefault();
+			e.stopImmediatePropagation();
+			let url = $(this).data('url');
+			let $sender = $(this);
+			authenticateWithMycdm(function () {
+			window.addEventListener('message', function (evt) {
+				if (evt.data == 'reservationSuccess')
+					$('.modal').modal('hide');
+			});
+			ShowLabReservationPopup(url);
+			/*$.ajax(
+		        'https://my-dft.cdm.depaul.edu/v2/Students/LabReservation/Reserve/1',
+		        {
+		            xhrFields: {
+		                withCredentials: true
+		            }
+		        }
+		    )
+		    .always(function(data, status, error) {
+		    	console.log(data);
+		    			    	console.log(status);
+		    			    			    	console.log(error);
+		    })
+		    .done(function(data) {
+				$.fn.cdmPopup.show('Lab Reservation', data, $sender, 600, 500);
+			});*/
+			});
+		});
+	});
+
+	$('#selectedFacultyImage').children().each(function () {
+		var imgSrc = $(this).attr('src');
+		var $img = $(this);
+		var facultyId = '';
+		if (imgSrc.indexOf('(') > -1)
+			facultyId = imgSrc.substring(imgSrc.indexOf('(') + 1, imgSrc.indexOf(')'));
+		else
+			facultyId = imgSrc.substring(imgSrc.indexOf('%28') + 3, imgSrc.indexOf('%29'));
+		OData.read(odataBaseUrl + 'Faculties(' + facultyId + ')', function(data, request) {
+			$img.on('click', function () {
+				window.location = '/Faculty-and-Staff/pages/People/faculty-info.aspx?fid=' + data.OriginalFacultyId;
+			});
+		});
+	});	
+}
+
+function Shortform() {
+	if ($('#shortform').length > 0) {
+		
+		
+		$this = $('#shortform');
+        var html = '<script src="/scripts/shortform3.js"></script><div id="error-placeholder">If the form fails to load or displays incorrectly, <a href="https://www.depaul.edu/admission-and-aid/Pages/request-info.aspx" target="_blank">click here</a> to fill out an alternate form.' +
+	'<br/><br/></div>' +
+
+'<div class="slate-form">' +
+	'<div id="form_110a734f-294f-4e26-9252-8f8ced24b3cb">Loading...</div></div>';
+	
+		$this.html(html);
+		Function.prototype.startsWith = function (str) {
+            return false;
+        }
+        
+
+	}
+	else if ($('#shortform-ugrd').length > 0) {
+		
+		
+		$this = $('#shortform-ugrd');
+        var html = '<script src="/scripts/shortform3-ugrd.js"></script><div id="error-placeholder">If the form fails to load or displays incorrectly, <a href="https://www.depaul.edu/admission-and-aid/Pages/request-info.aspx" target="_blank">click here</a> to fill out an alternate form.' +
+	'<br/><br/></div>' +
+
+'<div class="slate-form">' +
+	'<div id="form_b0a27f7f-ccb6-4f64-8b2b-dd67cb03afd7">Loading...</div></div>';
+	
+		$this.html(html);
+		Function.prototype.startsWith = function (str) {
+            return false;
+        }
+        
+
+	}
+
+}
+
+function ShowLabReservationPopup(url) {
+var iframe = '<iframe src="' + url + '" style="width: 100%; height: 500px; border: 0"></iframe>';
+			$.fn.cdmPopup.show('Lab Reservation', iframe, null, 400,500);
+}

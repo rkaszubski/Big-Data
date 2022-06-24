@@ -1,0 +1,26 @@
+﻿function popupwindow(url, title, win, w, h) {
+    var y = (win.top.outerHeight / 2 + win.top.screenY - ( h / 2)) - 20;
+    var x = (win.top.outerWidth / 2 + win.top.screenX - ( w / 2)) - 20;
+    return win.open(url, title, 'toolbar=no, location=no, directories=no, status=no, menubar=no, width='+w+', height='+h+', top='+y+', left='+x);
+} 
+
+function authenticateWithMycdm(callback) {
+	document.domain = 'depaul.edu';
+	$('body').addClass('loading');
+	var authWindow = popupwindow("https://my.cdm.depaul.edu/v2/Home/ExternalAuth", "myCDM Authentication", window, 850, 630);
+	window.addEventListener("message", function (evt) {
+	console.log('1');
+		if (evt.origin == "https://my.cdm.depaul.edu") {
+		console.log('2');
+			if (evt.data == "authok") {
+			console.log('3');
+				authWindow.close();
+				window.removeEventListener('message', null);
+				$('body').removeClass('loading');
+				if (callback) {
+					callback();
+				}
+			}
+		}
+	}, false);
+}
